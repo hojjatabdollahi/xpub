@@ -66,7 +66,7 @@ main () {
 
     ${tFlag} && xtty="${tArg}" || xtty="$(cat /sys/class/tty/tty0/active)"
 
-    xuser="$(who | grep "${xtty}" | head -n 1 | cut -d' ' -f1)"
+    xuser="$(loginctl list-sessions | grep "${xtty}" | awk '{print $3}' )"
 
     [ -z "${xuser}" ] && { echo "No user found from ${xtty}." 1>&2; exit 1; }
 
@@ -75,7 +75,7 @@ main () {
 
     if [ -n "${xpids}" ]; then
         for xpid in ${xpids}; do
-            xdisplay="$(ps -o cmd= "${xpid}" | grep "${vterm}" | grep -E -o ':[0-9]')"
+            xdisplay="$(w | grep "${xuser}" | grep -E -o ':[0-9]' | sort -u)"
             if [ "$?" -eq 0 ]; then
                 xdisplay="$(echo "${xdisplay}" | head -n1)"
                 break
